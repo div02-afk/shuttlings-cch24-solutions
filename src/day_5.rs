@@ -25,10 +25,6 @@ pub enum RequestResponse {
     Error(Status, String),
 }
 
-// struct Order {
-//     item: String,
-//     quantity: i64,
-// }
 
 const INVALID_MANIFEST: &str = "Invalid manifest";
 const EMPTY_MSG: &str = "";
@@ -37,79 +33,6 @@ const MAGIC_KEYWORD_ERROR: &str = "Magic keyword not provided";
 
 fn handle_toml(package: String) -> RequestResponse {
     println!("Package: {}", package);
-    // let parsed_package;
-    // match package.parse::<Table>() {
-    //     Ok(parsed) => {
-    //         parsed_package = parsed;
-    //         if parsed_package.is_empty() {
-    //             println!("Empty toml");
-    //             return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //         }
-    //     }
-    //     Err(_) => {
-    //         println!("Error parsing toml");
-    //         return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //     }
-    // }
-
-    // let package_info = parsed_package["package"].as_table().unwrap();
-
-    // let required_keys = ["name", "authors", "keywords"];
-
-    // for key in required_keys.iter() {
-    //     let key = key.to_string();
-    //     if !contains(PackageInfoTypes::Toml(package_info.clone()), key.clone()) {
-    //         return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //     }
-    //     match key.as_str() {
-    //         "name" => {
-    //             if !package_info["name"].is_str() {
-    //                 return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //             }
-    //         }
-    //         "authors" => {
-    //             if package_info["authors"].is_array() {
-    //                 for author in package_info["authors"].as_array().unwrap() {
-    //                     if !author.is_str() {
-    //                         return RequestResponse::Error(
-    //                             Status::BadRequest,
-    //                             INVALID_MANIFEST.to_string()
-    //                         );
-    //                     }
-    //                 }
-    //             } else {
-    //                 return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //             }
-    //         }
-    //         "keywords" => {
-    //             if package_info["keywords"].is_array() {
-    //                 let keywords = package_info["keywords"].as_array().unwrap();
-    //                 for keyword in keywords {
-    //                     if !keyword.is_str() {
-    //                         return RequestResponse::Error(
-    //                             Status::BadRequest,
-    //                             INVALID_MANIFEST.to_string()
-    //                         );
-    //                     }
-    //                 }
-    //                 if !keywords.contains(&Value::String(MAGIC_KEYWORD.to_string())) {
-    //                     return RequestResponse::Error(
-    //                         Status::BadRequest,
-    //                         MAGIC_KEYWORD_ERROR.to_string()
-    //                     );
-    //                 }
-    //             } else {
-    //                 return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //             }
-    //         }
-    //         _ => {
-    //             return RequestResponse::Error(Status::BadRequest, INVALID_MANIFEST.to_string());
-    //         }
-    //     }
-    // }
-
-    // println!("Package info: {:?}", package_info);
-
     match Manifest::from_slice(package.as_bytes()) {
         Ok(package) => {
             let package_info = package.package.unwrap();
@@ -192,7 +115,7 @@ fn handle_yaml(package: String) -> RequestResponse {
     }
 }
 #[post("/5/manifest", data = "<package>")]
-pub fn task_one(content_type: &ContentType, package: String) -> RequestResponse {
+pub fn day_5_task_one(content_type: &ContentType, package: String) -> RequestResponse {
     // let allowed_media_types = ["application/toml", "application/json", "application/yaml"];
     let media_type = content_type.to_string();
 
