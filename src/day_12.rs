@@ -23,6 +23,20 @@ pub fn day_12_task_one_two(board: &State<Arc<RwLock<MilkCookiesPack>>>) -> Reque
     RequestResponse::Success(board.value.to_string())
 }
 
+#[get("/12/random-board")]
+pub fn day_12_task_three(board: &State<Arc<RwLock<MilkCookiesPack>>>) -> RequestResponse {
+    let mut board = board.write().unwrap();
+    let random_board = MilkCookiesPack::random(&mut board.rng);
+    let board_vec = random_board.value.chars().collect::<Vec<char>>();
+    let a = check_winner(&board_vec);
+    let b = is_board_full(&board_vec);
+    if a != ' ' {
+        return RequestResponse::Success(format!("{}{} wins!\n", random_board.value.to_string(), a));
+    } else if b {
+        return RequestResponse::Success(format!("{}No winner.\n", random_board.value.to_string()));
+    }
+    return RequestResponse::Success(format!("{}", random_board.value.to_string()));
+}
 fn check_winner_horizontal(board_vec: &Vec<char>) -> char {
     for row in 0..board_vec.len() - 7 {
         if row % 7 != 1 {

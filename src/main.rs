@@ -3,28 +3,25 @@ mod day_5;
 mod day_9;
 mod day_12;
 mod day_16;
+
 use std::sync::{ Arc, RwLock };
-use rand::{ Rng, RngCore, SeedableRng };
-use rocket::{ get, routes };
+use rand::rngs::StdRng;
+use rand::{ Rng, SeedableRng };
+use rocket::routes;
 use crate::day_2::{ two_dest_one, two_dest_two, two_dest_three_one, two_dest_three_two };
 use crate::day_5::day_5_task_one;
 use crate::day_9::{ day_9_task_one, day_9_task_four, day_9_task_two };
-use crate::day_12::{ day_12_task_one, day_12_task_one_two, day_12_task_two };
-use crate::day_16::{ day_16_task_one_one, day_16_task_one_two };
+use crate::day_12::{ day_12_task_one, day_12_task_one_two, day_12_task_two, day_12_task_three };
+use crate::day_16::{ day_16_task_one_one, day_16_task_one_two, day_16_task_two };
 use leaky_bucket::RateLimiter;
 use tokio::time::Duration;
-
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, bird!"
-}
 
 pub struct MilkCookiesPack {
     value: String,
     is_winner: bool,
     winner: char,
     is_full: bool,
-    // RNG: rand::rngs::StdRng::from_seed::<u64>(2024)
+    rng: rand::rngs::StdRng,
 }
 impl MilkCookiesPack {
     fn reset() -> Self {
@@ -33,13 +30,12 @@ impl MilkCookiesPack {
             is_winner: false,
             is_full: false,
             winner: ' ',
+            rng: StdRng::seed_from_u64(2024),
         }
     }
 
     fn random(rnd: &mut rand::rngs::StdRng) -> Self {
-        let mut rng = rand::thread_rng();
         let return_val = "⬜⬛⬛⬛⬛⬜\n⬜⬛⬛⬛⬛⬜\n⬜⬛⬛⬛⬛⬜\n⬜⬛⬛⬛⬛⬜\n⬜⬜⬜⬜⬜⬜\n";
-
         let mut ret_vec = return_val.chars().collect::<Vec<char>>();
         for i in 0..ret_vec.len() {
             if ret_vec[i] == '⬜' || ret_vec[i] == '\n' {
@@ -61,6 +57,7 @@ impl MilkCookiesPack {
             is_winner: false,
             is_full: false,
             winner: ' ',
+            rng: rnd.to_owned(),
         };
     }
 }
@@ -83,7 +80,6 @@ async fn main() -> shuttle_rocket::ShuttleRocket {
         .mount(
             "/",
             routes![
-                index,
                 two_dest_one,
                 two_dest_two,
                 two_dest_three_one,
@@ -95,8 +91,10 @@ async fn main() -> shuttle_rocket::ShuttleRocket {
                 day_12_task_one,
                 day_12_task_one_two,
                 day_12_task_two,
+                day_12_task_three,
                 day_16_task_one_one,
-                day_16_task_one_two
+                day_16_task_one_two,
+                day_16_task_two
             ]
         );
 
