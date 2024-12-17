@@ -1,4 +1,4 @@
-use std::{ borrow::BorrowMut, sync::{ Arc, RwLock } };
+use std::sync::{ Arc, RwLock };
 use leaky_bucket::RateLimiter;
 use rocket::{ http::Status, post, State };
 use serde_json::json;

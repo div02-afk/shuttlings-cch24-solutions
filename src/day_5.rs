@@ -17,14 +17,15 @@ impl<'r> Responder<'r, 'static> for RequestResponse {
                     .status(status)
                     .sized_body(msg.len(), std::io::Cursor::new(msg.to_string()))
                     .ok(),
+            
         }
     }
 }
 pub enum RequestResponse {
     Success(String),
     Error(Status, String),
+    
 }
-
 
 const INVALID_MANIFEST: &str = "Invalid manifest";
 const EMPTY_MSG: &str = "";
