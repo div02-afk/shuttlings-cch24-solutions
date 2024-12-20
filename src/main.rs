@@ -3,19 +3,22 @@ mod day_5;
 mod day_9;
 mod day_12;
 mod day_16;
+mod day_19;
 
 use std::sync::{ Arc, RwLock };
 use rand::rngs::StdRng;
 use rand::{ Rng, SeedableRng };
 use rocket::routes;
+use shuttle_runtime::CustomError;
 use crate::day_2::{ two_dest_one, two_dest_two, two_dest_three_one, two_dest_three_two };
 use crate::day_5::day_5_task_one;
 use crate::day_9::{ day_9_task_one, day_9_task_four, day_9_task_two };
 use crate::day_12::{ day_12_task_one, day_12_task_one_two, day_12_task_two, day_12_task_three };
 use crate::day_16::{ day_16_task_one_one, day_16_task_one_two, day_16_task_two };
+use crate::day_19::{ day_19_task_one_a ,day_19_task_one_b,day_19_task_one_e};
 use leaky_bucket::RateLimiter;
 use tokio::time::Duration;
-
+use sqlx::{ Executor, PgPool };
 pub struct MilkCookiesPack {
     value: String,
     is_winner: bool,
@@ -63,7 +66,10 @@ impl MilkCookiesPack {
 }
 
 #[shuttle_runtime::main]
-async fn main() -> shuttle_rocket::ShuttleRocket {
+async fn main(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::ShuttleRocket {
+    pool.execute(include_str!("./schema.sql")).await.map_err(CustomError::new)?;
+
+    let shared_pool = Arc::new(pool);
     let board = MilkCookiesPack::reset();
     let limiter = RateLimiter::builder()
         .initial(0)
@@ -77,6 +83,7 @@ async fn main() -> shuttle_rocket::ShuttleRocket {
         ::build()
         .manage(shared_limiter)
         .manage(shared_board)
+        .manage(shared_pool)
         .mount(
             "/",
             routes![
@@ -94,7 +101,10 @@ async fn main() -> shuttle_rocket::ShuttleRocket {
                 day_12_task_three,
                 day_16_task_one_one,
                 day_16_task_one_two,
-                day_16_task_two
+                day_16_task_two,
+                day_19_task_one_a,
+                day_19_task_one_b,
+                day_19_task_one_e,
             ]
         );
 

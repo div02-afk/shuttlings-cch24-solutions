@@ -1,8 +1,5 @@
-use std::string;
-
 use crate::day_5::RequestResponse;
 use rocket::{ get, http::{ Cookie, CookieJar, Status }, post };
-
 use jsonwebtoken::{
     decode,
     decode_header,
@@ -11,7 +8,6 @@ use jsonwebtoken::{
     DecodingKey,
     EncodingKey,
     Header,
-    TokenData,
     Validation,
 };
 
