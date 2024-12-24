@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS quotes;
-
 CREATE TABLE IF NOT EXISTS quotes (
     id UUID PRIMARY KEY,
     author TEXT NOT NULL,

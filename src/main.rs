@@ -15,7 +15,15 @@ use crate::day_5::day_5_task_one;
 use crate::day_9::{ day_9_task_one, day_9_task_four, day_9_task_two };
 use crate::day_12::{ day_12_task_one, day_12_task_one_two, day_12_task_two, day_12_task_three };
 use crate::day_16::{ day_16_task_one_one, day_16_task_one_two, day_16_task_two };
-use crate::day_19::{ day_19_task_one_a ,day_19_task_one_b,day_19_task_one_e};
+use crate::day_19::{
+    day_19_task_one_a,
+    day_19_task_one_b,
+    day_19_task_one_c,
+    day_19_task_one_d,
+    day_19_task_one_e,
+    day_19_task_two_a,
+    day_19_task_two_b,
+};
 use leaky_bucket::RateLimiter;
 use tokio::time::Duration;
 use sqlx::{ Executor, PgPool };
@@ -104,7 +112,11 @@ async fn main(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::Sh
                 day_16_task_two,
                 day_19_task_one_a,
                 day_19_task_one_b,
+                day_19_task_one_c,
+                day_19_task_one_d,
                 day_19_task_one_e,
+                day_19_task_two_a,
+                day_19_task_two_b
             ]
         );
 

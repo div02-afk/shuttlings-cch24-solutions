@@ -17,14 +17,19 @@ impl<'r> Responder<'r, 'static> for RequestResponse {
                     .status(status)
                     .sized_body(msg.len(), std::io::Cursor::new(msg.to_string()))
                     .ok(),
-            
+            RequestResponse::JSON(status, msg) =>
+                Response::build()
+                    .status(status)
+                    .header(ContentType::JSON)
+                    .sized_body(msg.len(), std::io::Cursor::new(msg))
+                    .ok(),
         }
     }
 }
 pub enum RequestResponse {
     Success(String),
     Error(Status, String),
-    
+    JSON(Status, String),
 }
 
 const INVALID_MANIFEST: &str = "Invalid manifest";
