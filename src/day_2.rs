@@ -1,4 +1,4 @@
-use rocket::get;
+use rocket::{ get, routes, Route };
 
 pub fn expand_ipv6(from_ip: &mut Vec<&str>) {
     if let Some(pos) = from_ip.iter().position(|&x| x == "") {
@@ -64,7 +64,7 @@ pub fn shorten_ipv6(full_ipv6: &str) -> String {
     compressed
 }
 
-#[get("/2/dest?<from>&<key>")]
+#[get("/dest?<from>&<key>")]
 pub fn two_dest_one(from: &str, key: &str) -> String {
     let from_ip = from.split(".").collect::<Vec<&str>>();
     let key_ip = key.split(".").collect::<Vec<&str>>();
@@ -83,7 +83,7 @@ pub fn two_dest_one(from: &str, key: &str) -> String {
     result
 }
 
-#[get("/2/key?<from>&<to>")]
+#[get("/key?<from>&<to>")]
 pub fn two_dest_two(from: &str, to: &str) -> String {
     let from_ip = from.split(".").collect::<Vec<&str>>();
     let to_ip = to.split(".").collect::<Vec<&str>>();
@@ -105,7 +105,7 @@ pub fn two_dest_two(from: &str, to: &str) -> String {
     result
 }
 
-#[get("/2/v6/key?<from>&<to>")]
+#[get("/v6/key?<from>&<to>")]
 pub fn two_dest_three_two(from: &str, to: &str) -> String {
     let mut from_ip = from.split(":").collect::<Vec<&str>>();
     let mut key_ip = to.split(":").collect::<Vec<&str>>();
@@ -131,7 +131,7 @@ pub fn two_dest_three_two(from: &str, to: &str) -> String {
     shorten_ipv6(&result)
 }
 
-#[get("/2/v6/dest?<from>&<key>")]
+#[get("/v6/dest?<from>&<key>")]
 pub fn two_dest_three_one(from: &str, key: &str) -> String {
     let mut from_ip = from.split(":").collect::<Vec<&str>>();
     let mut to_ip = key.split(":").collect::<Vec<&str>>();
@@ -154,4 +154,8 @@ pub fn two_dest_three_one(from: &str, key: &str) -> String {
     }
     result.pop();
     shorten_ipv6(&result)
+}
+
+pub fn routes() -> Vec<Route> {
+    return routes![two_dest_one, two_dest_three_one, two_dest_three_two, two_dest_two];
 }

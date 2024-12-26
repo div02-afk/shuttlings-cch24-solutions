@@ -4,13 +4,16 @@ mod day_9;
 mod day_12;
 mod day_16;
 mod day_19;
-
+mod day_23;
+use std::path::{ Path, PathBuf };
 use std::sync::{ Arc, RwLock };
 use rand::rngs::StdRng;
 use rand::{ Rng, SeedableRng };
-use rocket::routes;
+use rocket::fs::{ relative, FileServer, NamedFile };
+
+use rocket::{ get, routes };
 use shuttle_runtime::CustomError;
-use crate::day_2::{ two_dest_one, two_dest_two, two_dest_three_one, two_dest_three_two };
+
 use crate::day_5::day_5_task_one;
 use crate::day_9::{ day_9_task_one, day_9_task_four, day_9_task_two };
 use crate::day_12::{ day_12_task_one, day_12_task_one_two, day_12_task_two, day_12_task_three };
@@ -24,6 +27,7 @@ use crate::day_19::{
     day_19_task_two_a,
     day_19_task_two_b,
 };
+use crate::day_23::{ day_23_task_one };
 use leaky_bucket::RateLimiter;
 use tokio::time::Duration;
 use sqlx::{ Executor, PgPool };
@@ -72,7 +76,17 @@ impl MilkCookiesPack {
         };
     }
 }
-
+#[get("/<path..>")]
+pub async fn static_files(path: PathBuf) -> Option<NamedFile> {
+    let path = Path::new(relative!("assets")).join(path);
+    NamedFile::open(path.clone()).await
+        .inspect_err(
+            |err| {
+                // warn!("Could not get file at path {:?}: {:?}", path, err);
+            }
+        )
+        .ok()
+}
 #[shuttle_runtime::main]
 async fn main(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::ShuttleRocket {
     pool.execute(include_str!("./schema.sql")).await.map_err(CustomError::new)?;
@@ -89,16 +103,14 @@ async fn main(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::Sh
     let shared_board = Arc::new(RwLock::new(board));
     let rocket = rocket
         ::build()
+
         .manage(shared_limiter)
         .manage(shared_board)
         .manage(shared_pool)
+        .mount("/2", day_2::routes())
         .mount(
             "/",
             routes![
-                two_dest_one,
-                two_dest_two,
-                two_dest_three_one,
-                two_dest_three_two,
                 day_5_task_one,
                 day_9_task_two,
                 day_9_task_one,
@@ -118,7 +130,9 @@ async fn main(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::Sh
                 day_19_task_two_a,
                 day_19_task_two_b
             ]
-        );
+        )
+        .mount("/23", day_23::routes())
+        .mount("/assets", FileServer::from(relative!("assets")));
 
     Ok(rocket.into())
 }

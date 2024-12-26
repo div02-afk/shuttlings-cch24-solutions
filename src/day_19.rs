@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use rocket::response::status::BadRequest;
 use rocket::serde::{ Deserialize, json::Json };
 use rocket::{ delete, get, http::Status, post, State, put };
 use sqlx::{ types::chrono, Executor, Pool, Postgres };
@@ -47,7 +46,7 @@ pub async fn day_19_task_one_c(pool: &State<Arc<Pool<Postgres>>>, id: &str) -> R
             return RequestResponse::Error(Status::BadRequest, "".to_string());
         }
     };
-    let results = match sqlx::query_as::<_, Quote>(query).bind(id).fetch_optional(&***pool).await {
+    let _results = match sqlx::query_as::<_, Quote>(query).bind(id).fetch_optional(&***pool).await {
         Ok(results) =>
             match results {
                 Some(quote) => {
