@@ -3,9 +3,11 @@ use rocket::post;
 use rocket::http::Status;
 use rocket::http::ContentType;
 use rocket::response::{ Responder, Result };
+use rocket::routes;
 use rocket::Request;
 use rocket::Response;
 use cargo_manifest::Manifest;
+use rocket::Route;
 
 impl<'r> Responder<'r, 'static> for RequestResponse {
     fn respond_to(self, _: &'r Request<'_>) -> Result<'static> {
@@ -120,7 +122,7 @@ fn handle_yaml(package: String) -> RequestResponse {
         }
     }
 }
-#[post("/5/manifest", data = "<package>")]
+#[post("/manifest", data = "<package>")]
 pub fn day_5_task_one(content_type: &ContentType, package: String) -> RequestResponse {
     // let allowed_media_types = ["application/toml", "application/json", "application/yaml"];
     let media_type = content_type.to_string();
@@ -139,4 +141,8 @@ pub fn day_5_task_one(content_type: &ContentType, package: String) -> RequestRes
             return RequestResponse::Error(Status::UnsupportedMediaType, EMPTY_MSG.to_string());
         }
     }
+}
+
+pub fn routes() -> Vec<Route> {
+    return routes![day_5_task_one];
 }

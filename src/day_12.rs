@@ -1,8 +1,8 @@
 use std::sync::{ Arc, RwLock };
 use crate::{ day_5::RequestResponse, MilkCookiesPack };
-use rocket::{ get, http::Status, post, State };
+use rocket::{ get, http::Status, post, routes, Route, State };
 
-#[get("/12/board")]
+#[get("/board")]
 pub fn day_12_task_one(board: &State<Arc<RwLock<MilkCookiesPack>>>) -> RequestResponse {
     let response = board.read().unwrap().value.clone();
     let winner = board.read().unwrap().winner.clone();
@@ -16,14 +16,14 @@ pub fn day_12_task_one(board: &State<Arc<RwLock<MilkCookiesPack>>>) -> RequestRe
     RequestResponse::Success(response.to_string())
 }
 
-#[post("/12/reset")]
+#[post("/reset")]
 pub fn day_12_task_one_two(board: &State<Arc<RwLock<MilkCookiesPack>>>) -> RequestResponse {
     let mut board = board.write().unwrap();
     *board = MilkCookiesPack::reset();
     RequestResponse::Success(board.value.to_string())
 }
 
-#[get("/12/random-board")]
+#[get("/random-board")]
 pub fn day_12_task_three(board: &State<Arc<RwLock<MilkCookiesPack>>>) -> RequestResponse {
     let mut board = board.write().unwrap();
     let random_board = MilkCookiesPack::random(&mut board.rng);
@@ -111,7 +111,7 @@ fn is_board_full(board_vec: &Vec<char>) -> bool {
     board_vec.iter().all(|&c| c != '⬛')
 }
 
-#[post("/12/place/<team>/<column>")]
+#[post("/place/<team>/<column>")]
 pub fn day_12_task_two(
     board: &State<Arc<RwLock<MilkCookiesPack>>>,
     team: &str,
@@ -195,4 +195,8 @@ pub fn day_12_task_two(
         return RequestResponse::Success(format!("{}No winner.\n", board.value.to_string()));
     }
     return RequestResponse::Success(format!("{}", board.value.to_string()));
+}
+
+pub fn routes() -> Vec<Route> {
+    return routes![day_12_task_one, day_12_task_one_two, day_12_task_two, day_12_task_three];
 }

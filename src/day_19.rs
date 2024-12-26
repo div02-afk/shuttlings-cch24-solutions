@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use rocket::serde::{ Deserialize, json::Json };
+use rocket::{ routes, Route };
 use rocket::{ delete, get, http::Status, post, State, put };
 use sqlx::{ types::chrono, Executor, Pool, Postgres };
 use crate::day_5::RequestResponse;
@@ -14,13 +15,13 @@ struct Quote {
     version: i32,
 }
 
-#[post("/19/reset")]
+#[post("/reset")]
 pub async fn day_19_task_one_a(pool: &State<Arc<Pool<Postgres>>>) -> RequestResponse {
     pool.execute("DELETE FROM quotes;").await.unwrap();
     RequestResponse::Success("".to_string())
 }
 
-#[get("/19/cite/<id>")]
+#[get("/cite/<id>")]
 pub async fn day_19_task_one_b(pool: &State<Arc<Pool<Postgres>>>, id: &str) -> RequestResponse {
     let query = "SELECT * FROM quotes WHERE id = $1";
     let id = sqlx::types::Uuid::parse_str(id).unwrap();
@@ -36,7 +37,7 @@ pub async fn day_19_task_one_b(pool: &State<Arc<Pool<Postgres>>>, id: &str) -> R
     }
 }
 
-#[delete("/19/remove/<id>")]
+#[delete("/remove/<id>")]
 pub async fn day_19_task_one_c(pool: &State<Arc<Pool<Postgres>>>, id: &str) -> RequestResponse {
     let query = "DELETE FROM quotes WHERE id = $1 RETURNING *";
     // let search_result = day_19_task_one_b(pool, id).await;
@@ -71,7 +72,7 @@ pub struct Update {
     pub quote: String,
 }
 
-#[put("/19/undo/<id>", data = "<update>")]
+#[put("/undo/<id>", data = "<update>")]
 pub async fn day_19_task_one_d(
     pool: &State<Arc<Pool<Postgres>>>,
     id: &str,
@@ -113,7 +114,7 @@ pub async fn day_19_task_one_d(
     }
 }
 
-#[post("/19/draft", data = "<quote>")]
+#[post("/draft", data = "<quote>")]
 pub async fn day_19_task_one_e(pool: &State<Arc<Pool<Postgres>>>, quote: &str) -> RequestResponse {
     let parsed_quote = serde_json::from_str::<serde_json::Value>(quote);
     match parsed_quote {
@@ -170,7 +171,7 @@ struct ListResponse {
     next_token: Option<String>,
 }
 
-#[get("/19/list?<token>")]
+#[get("/list?<token>")]
 pub async fn day_19_task_two_a(pool: &State<Arc<Pool<Postgres>>>, token: &str) -> RequestResponse {
     let mut i_token = 0;
 
@@ -206,7 +207,19 @@ pub async fn day_19_task_two_a(pool: &State<Arc<Pool<Postgres>>>, token: &str) -
     };
     return RequestResponse::JSON(Status::Ok, serde_json::to_string(&response).unwrap());
 }
-#[get("/19/list", rank = 2)]
+#[get("/list", rank = 2)]
 pub async fn day_19_task_two_b(pool: &State<Arc<Pool<Postgres>>>) -> RequestResponse {
     return day_19_task_two_a(pool, "").await;
+}
+
+pub fn routes() -> Vec<Route> {
+    routes![
+        day_19_task_one_a,
+        day_19_task_one_b,
+        day_19_task_one_c,
+        day_19_task_one_d,
+        day_19_task_one_e,
+        day_19_task_two_a,
+        day_19_task_two_b
+    ]
 }

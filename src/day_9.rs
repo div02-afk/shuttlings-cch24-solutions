@@ -1,11 +1,11 @@
 use std::sync::{ Arc, RwLock };
 use leaky_bucket::RateLimiter;
-use rocket::{ http::Status, post, State };
+use rocket::{ http::Status, post, routes, Route, State };
 use serde_json::json;
 use tokio::time::Duration;
 use crate::day_5::RequestResponse;
 
-#[post("/9/milk", rank = 2)]
+#[post("/milk", rank = 2)]
 pub async fn day_9_task_one(
     // content_type: &ContentType,
     bucket: &State<Arc<RwLock<RateLimiter>>>
@@ -20,7 +20,7 @@ pub async fn day_9_task_one(
     }
 }
 
-#[post("/9/milk", format = "application/json", data = "<milk>")]
+#[post("/milk", format = "application/json", data = "<milk>")]
 pub fn day_9_task_two(bucket: &State<Arc<RwLock<RateLimiter>>>, milk: String) -> RequestResponse {
     if !bucket.read().unwrap().try_acquire(1) {
         return RequestResponse::Error(Status::TooManyRequests, "No milk available\n".to_string());
@@ -63,7 +63,7 @@ pub fn day_9_task_two(bucket: &State<Arc<RwLock<RateLimiter>>>, milk: String) ->
     RequestResponse::Success(response.to_string())
 }
 
-#[post("/9/refill")]
+#[post("/refill")]
 pub fn day_9_task_four(bucket: &State<Arc<RwLock<RateLimiter>>>) -> RequestResponse {
     // println!("Refilling milk {}", bucket.balance());
     let new_limiter = RateLimiter::builder()
@@ -76,4 +76,8 @@ pub fn day_9_task_four(bucket: &State<Arc<RwLock<RateLimiter>>>) -> RequestRespo
     *writable = new_limiter;
 
     return RequestResponse::Success("".to_string());
+}
+
+pub fn routes() -> Vec<Route> {
+    return routes![day_9_task_one, day_9_task_four, day_9_task_two];
 }

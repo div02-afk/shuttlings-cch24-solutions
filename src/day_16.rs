@@ -1,5 +1,5 @@
 use crate::day_5::RequestResponse;
-use rocket::{ get, http::{ Cookie, CookieJar, Status }, post };
+use rocket::{ get, http::{ Cookie, CookieJar, Status }, post, routes, Route };
 use jsonwebtoken::{
     decode,
     decode_header,
@@ -114,4 +114,8 @@ pub fn day_16_task_two(token: &str) -> RequestResponse {
             return RequestResponse::Error(Status::BadRequest, "".to_string());
         }
     }
+}
+
+pub fn routes() -> Vec<Route> {
+    return routes![day_16_task_one_one, day_16_task_one_two, day_16_task_two];
 }
